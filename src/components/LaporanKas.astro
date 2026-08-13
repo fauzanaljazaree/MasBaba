@@ -1,15 +1,37 @@
 ---
-const totalPemasukan = 12500000;
-const totalPengeluaran = 4800000;
-const saldo = totalPemasukan - totalPengeluaran;
+import * as XLSX from 'xlsx';
+
+const XLSX_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSYRGdIJonG8O6PwF1ceNNwUMypxK7wju05pdQ39trRcwhv_bKzoKUMUJrfwB_svg/pub?output=xlsx';
+
+const angkaSel = (v: unknown) => (typeof v === 'number' ? v : 0);
+
+async function ambilDataKas() {
+  const fallback = { pemasukan: 12500000, pengeluaran: 4800000, saldo: 7700000 };
+  try {
+    const response = await fetch(XLSX_URL);
+    const buffer = await response.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: 'array' });
+    const sheet = workbook.Sheets['Dashboard & Ringkasan'];
+    if (!sheet) return fallback;
+    return {
+      pemasukan: angkaSel(sheet['E6']?.v) || fallback.pemasukan,
+      pengeluaran: angkaSel(sheet['H6']?.v) || fallback.pengeluaran,
+      saldo: angkaSel(sheet['K6']?.v) || fallback.saldo,
+    };
+  } catch {
+    return fallback;
+  }
+}
+
+const { pemasukan, pengeluaran, saldo } = await ambilDataKas();
 
 const formatRupiah = (angka: number) =>
   new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
 
 const ringkasan = [
-  { label: 'Total Pemasukan', nilai: totalPemasukan, warna: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
-  { label: 'Total Pengeluaran', nilai: totalPengeluaran, warna: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-200' },
-  { label: 'Saldo Saat Ini', nilai: saldo, warna: 'text-sky-600', bg: 'bg-sky-50', border: 'border-sky-200' },
+  { id: 'pemasukan', label: 'Total Pemasukan', nilai: formatRupiah(pemasukan), warna: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+  { id: 'pengeluaran', label: 'Total Pengeluaran', nilai: formatRupiah(pengeluaran), warna: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-200' },
+  { id: 'saldo', label: 'Saldo Kas Saat Ini', nilai: formatRupiah(saldo), warna: 'text-sky-600', bg: 'bg-sky-50', border: 'border-sky-200' },
 ];
 ---
 
@@ -20,9 +42,39 @@ const ringkasan = [
       ringkasan.map((r) => (
         <div class={`rounded-xl border ${r.border} ${r.bg} p-5`}>
           <p class="text-sm font-medium text-gray-600">{r.label}</p>
-          <p class={`text-2xl font-bold mt-2 ${r.warna}`}>{formatRupiah(r.nilai)}</p>
+          <p id={`kas-${r.id}`} class={`text-2xl font-bold mt-2 ${r.warna}`}>{r.nilai}</p>
         </div>
       ))
     }
   </div>
 </div>
+
+<script>
+  import * as XLSX from 'xlsx';
+
+  const XLSX_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSYRGdIJonG8O6PwF1ceNNwUMypxK7wju05pdQ39trRcwhv_bKzoKUMUJrfwB_svg/pub?output=xlsx';
+  const SEL = { pemasukan: 'E6', pengeluaran: 'H6', saldo: 'K6' };
+
+  const formatRupiah = (angka: number) =>
+    new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+
+  async function sinkronKas() {
+    try {
+      const response = await fetch(XLSX_URL);
+      const buffer = await response.arrayBuffer();
+      const workbook = XLSX.read(buffer, { type: 'array' });
+      const sheet = workbook.Sheets['Dashboard & Ringkasan'];
+      if (!sheet) return;
+      for (const [key, cell] of Object.entries(SEL)) {
+        const el = document.getElementById(`kas-${key}`);
+        const v = sheet[cell]?.v;
+        if (el && typeof v === 'number') el.textContent = formatRupiah(v);
+      }
+    } catch {
+      // abaikan jika gagal, coba lagi di polling berikutnya
+    }
+  }
+
+  sinkronKas();
+  setInterval(sinkronKas, 60_000);
+</script>
