@@ -1,0 +1,28 @@
+---
+const totalPemasukan = 12500000;
+const totalPengeluaran = 4800000;
+const saldo = totalPemasukan - totalPengeluaran;
+
+const formatRupiah = (angka: number) =>
+  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+
+const ringkasan = [
+  { label: 'Total Pemasukan', nilai: totalPemasukan, warna: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+  { label: 'Total Pengeluaran', nilai: totalPengeluaran, warna: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-200' },
+  { label: 'Saldo Saat Ini', nilai: saldo, warna: 'text-sky-600', bg: 'bg-sky-50', border: 'border-sky-200' },
+];
+---
+
+<div class="p-4">
+  <h2 class="text-xl font-bold mb-4">Laporan Kas Masjid</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    {
+      ringkasan.map((r) => (
+        <div class={`rounded-xl border ${r.border} ${r.bg} p-5`}>
+          <p class="text-sm font-medium text-gray-600">{r.label}</p>
+          <p class={`text-2xl font-bold mt-2 ${r.warna}`}>{formatRupiah(r.nilai)}</p>
+        </div>
+      ))
+    }
+  </div>
+</div>

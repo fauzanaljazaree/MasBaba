@@ -1,0 +1,57 @@
+---
+const infoJumat = {
+  tanggal: 'Jumat, 14 Agustus 2026',
+  khatib: 'Ustadz Ahmad Fauzi, Lc.',
+  imam: 'Ustadz Muhammad Rizki',
+  muazin: 'Bpk. Hasan Basri',
+};
+
+const kajian = [
+  { hari: 'Senin', judul: 'Tafsir Al-Qur\'an', pemateri: 'Ustadz Ahmad Fauzi', waktu: '19:30 - 20:30' },
+  { hari: 'Rabu', judul: 'Fiqih Ibadah', pemateri: 'Ustadz Muhammad Rizki', waktu: '19:30 - 20:30' },
+  { hari: 'Kamis', judul: 'Hadits Arba\'in', pemateri: 'Ustadz Ahmad Fauzi', waktu: '19:30 - 20:30' },
+  { hari: 'Sabtu', judul: 'Kajian Remaja', pemateri: 'Ustadz Yusuf Abdullah', waktu: '16:00 - 17:30' },
+  { hari: 'Ahad', judul: 'Tahsin & Tahfidz', pemateri: 'Ustadzah Siti Aminah', waktu: '08:00 - 09:30' },
+];
+---
+
+<div class="p-4 space-y-6">
+  <div class="bg-white rounded-xl border border-gray-200 shadow p-6">
+    <h2 class="text-xl font-bold mb-4">Info Sholat Jumat</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <p class="text-sm text-gray-500">Tanggal</p>
+        <p class="font-semibold">{infoJumat.tanggal}</p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500">Khatib</p>
+        <p class="font-semibold">{infoJumat.khatib}</p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500">Imam</p>
+        <p class="font-semibold">{infoJumat.imam}</p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500">Muazin</p>
+        <p class="font-semibold">{infoJumat.muazin}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl border border-gray-200 shadow p-6">
+    <h2 class="text-xl font-bold mb-4">Jadwal Kajian Pekanan</h2>
+    <div class="divide-y divide-gray-100">
+      {
+        kajian.map((k) => (
+          <div class="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+            <div>
+              <p class="font-semibold">{k.hari} <span class="text-gray-500 font-normal">• {k.judul}</span></p>
+              <p class="text-sm text-gray-500">{k.pemateri}</p>
+            </div>
+            <span class="text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1 w-fit">{k.waktu}</span>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</div>

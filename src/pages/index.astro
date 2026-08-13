@@ -1,0 +1,48 @@
+---
+import JadwalSholat from '../components/JadwalSholat.astro';
+import LaporanKas from '../components/LaporanKas.astro';
+import InfoJumat from '../components/InfoJumat.astro';
+import '../styles/global.css';
+
+const namaMasjid = 'Masjid Al-Hikmah';
+---
+
+<html lang="id">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{namaMasjid}</title>
+	</head>
+	<body class="bg-gray-50 min-h-screen flex flex-col">
+		<header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-200">
+			<nav class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+				<a href="/" class="flex items-center gap-2">
+					<span class="text-2xl">🕌</span>
+					<span class="font-bold text-lg text-emerald-800">{namaMasjid}</span>
+				</a>
+				<a
+					href="#donasi"
+					class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors"
+				>
+					Donasi
+				</a>
+			</nav>
+		</header>
+
+		<main class="flex-1 w-full max-w-6xl mx-auto px-4 py-6">
+			<JadwalSholat />
+			<LaporanKas />
+			<InfoJumat />
+		</main>
+
+		<footer class="bg-emerald-900 text-emerald-50">
+			<div class="max-w-6xl mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm">
+				<p>© 2026 {namaMasjid}. Semua hak dilindungi.</p>
+				<p>Berdakwah dengan Ilmu, Beramal dengan Ikhlas</p>
+			</div>
+		</footer>
+	</body>
+</html>
