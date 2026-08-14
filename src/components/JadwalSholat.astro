@@ -14,6 +14,8 @@ const jadwal = data.data.jadwal;
 const todayMasehiStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 const todayJadwal = jadwal.find((j) => j.date === todayMasehiStr) ?? jadwal[0];
 
+const lokasi = data.data.lokasi;
+
 const waktu = [
   { nama: 'Imsak', waktu: todayJadwal.imsak },
   { nama: 'Subuh', waktu: todayJadwal.subuh },
@@ -25,16 +27,48 @@ const waktu = [
 ---
 
 <div class="p-4">
-  <h2 class="text-xl font-bold mb-1">Jadwal Sholat</h2>
-  <p class="text-sm text-gray-600 mb-4">{todayMasehi} • {data.data.lokasi}</p>
-  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-    {
-      waktu.map((w) => (
-        <div class="bg-white rounded-xl shadow p-4 text-center border border-gray-200">
-          <p class="text-sm font-medium text-gray-500">{w.nama}</p>
-          <p class="text-lg font-bold text-emerald-700 mt-1">{w.waktu}</p>
-        </div>
-      ))
-    }
+  <button id="jadwal-toggle" type="button" aria-expanded="false" class="w-full flex items-center justify-between bg-white rounded-xl shadow p-4 border border-gray-200 cursor-pointer hover:bg-gray-50 transition">
+    <div class="text-left">
+      <h2 class="text-xl font-bold">Jadwal Sholat</h2>
+      <p class="text-sm text-gray-600" id="tanggal-masehi">{todayMasehi} • {lokasi}</p>
+    </div>
+    <svg id="chevron" class="w-6 h-6 text-emerald-700 transition-transform duration-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+    </svg>
+  </button>
+  <div id="jadwal-content" class="hidden mt-4">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      {
+        waktu.map((w) => (
+          <div class="bg-white rounded-xl shadow p-4 text-center border border-gray-200">
+            <p class="text-sm font-medium text-gray-500">{w.nama}</p>
+            <p class="text-lg font-bold text-emerald-700 mt-1">{w.waktu}</p>
+          </div>
+        ))
+      }
+    </div>
   </div>
 </div>
+
+<script define:vars={{ lokasi }}>
+  const toggle = document.getElementById('jadwal-toggle');
+  const content = document.getElementById('jadwal-content');
+  const chevron = document.getElementById('chevron');
+  const tanggal = document.getElementById('tanggal-masehi');
+
+  toggle.addEventListener('click', () => {
+    const isHidden = content.classList.contains('hidden');
+    content.classList.toggle('hidden');
+    chevron.classList.toggle('rotate-180', isHidden);
+    toggle.setAttribute('aria-expanded', String(isHidden));
+  });
+
+  // Update tanggal realtime setiap menit
+  const updateTanggal = () => {
+    const now = new Date();
+    const formatted = new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(now);
+    tanggal.textContent = `${formatted} • ${lokasi}`;
+  };
+  updateTanggal();
+  setInterval(updateTanggal, 60000);
+</script>

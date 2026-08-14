@@ -1,6 +1,4 @@
 ---
-import JadwalSholat from '../components/JadwalSholat.astro';
-import InfoJumat from '../components/InfoJumat.astro';
 import '../styles/global.css';
 
 const namaMasjid = 'Masjid Baitul Barokah';
@@ -13,7 +11,7 @@ const namaMasjid = 'Masjid Baitul Barokah';
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>{namaMasjid}</title>
+		<title>Profil - {namaMasjid}</title>
 	</head>
 	<body class="bg-gray-50 min-h-screen flex flex-col">
 		<header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-200">
@@ -24,7 +22,7 @@ const namaMasjid = 'Masjid Baitul Barokah';
 				</a>
 				<div class="hidden md:flex items-center gap-8 text-base font-medium text-gray-700">
 					<a href="/" class="hover:text-emerald-700 transition-colors">Beranda</a>
-					<a href="/profil" class="hover:text-emerald-700 transition-colors">Profil</a>
+					<a href="/profil" class="text-emerald-700 font-semibold">Profil</a>
 					<div class="relative group">
 						<a href="#kegiatan" class="hover:text-emerald-700 transition-colors flex items-center gap-1">
 							Kegiatan
@@ -58,9 +56,54 @@ const namaMasjid = 'Masjid Baitul Barokah';
 			</nav>
 		</header>
 
-		<main class="flex-1 w-full max-w-6xl mx-auto px-4 py-6">
-			<JadwalSholat />
-			<InfoJumat />
+		<main class="flex-1 w-full max-w-4xl mx-auto px-4 py-10">
+			<section class="mb-10">
+				<h1 class="text-3xl font-bold text-emerald-800 mb-2">Profil {namaMasjid}</h1>
+				<p class="text-gray-500">Mengenal lebih dekat sejarah, visi, dan misi masjid kami.</p>
+			</section>
+
+			<section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+				<h2 class="text-2xl font-bold text-emerald-800 mb-4">Sejarah Masjid</h2>
+				<div class="space-y-4 text-gray-700 leading-relaxed">
+					<p>
+						Masjid Baitul Barokah berdiri pada tahun 1985 di atas tanah wakaf seluas 1.200 meter persegi
+						yang dihibahkan oleh H. Ahmad Syarif, seorang tokoh masyarakat setempat. Berawal dari sebuah
+						mushola sederhana berdinding anyaman bambu, masjid ini menjadi pusat kegiatan keagamaan warga
+						sejak awal berdirinya.
+					</p>
+					<p>
+						Pada tahun 1998, dilakukan renovasi besar-besaran dengan gotong royong seluruh warga. Bangunan
+						masjid diperluas menjadi dua lantai, dilengkapi dengan ruang serbaguna, perpustakaan, dan
+						tempat wudhu yang lebih memadai. Renovasi ini selesai pada tahun 2001 dan diresmikan oleh
+						Kepala Kantor Urusan Agama setempat.
+					</p>
+					<p>
+						Seiring berjalannya waktu, Masjid Baitul Barokah terus berkembang menjadi pusat dakwah,
+						pendidikan, dan pemberdayaan umat. Berbagai program seperti Taman Pendidikan Al-Qur'an (TPQ),
+						pengajian rutin, santunan anak yatim, dan kegiatan sosial lainnya rutin diselenggarakan untuk
+						kemaslahatan masyarakat sekitar.
+					</p>
+				</div>
+			</section>
+
+			<section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+				<h2 class="text-2xl font-bold text-emerald-800 mb-4">Visi</h2>
+				<p class="text-gray-700 leading-relaxed">
+					"Menjadi masjid yang makmur, mandiri, dan menjadi pusat peradaban Islam yang rahmatan lil 'alamin,
+					serta mampu memberdayakan umat menuju masyarakat yang beriman, berilmu, dan beramal shalih."
+				</p>
+			</section>
+
+			<section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+				<h2 class="text-2xl font-bold text-emerald-800 mb-4">Misi</h2>
+				<ul class="list-disc list-inside space-y-2 text-gray-700 leading-relaxed">
+					<li>Memakmurkan masjid melalui ibadah, dakwah, dan pendidikan Islam yang berkualitas.</li>
+					<li>Menyelenggarakan program pemberdayaan ekonomi umat yang berkelanjutan.</li>
+					<li>Membangun generasi muda yang berakhlak mulia melalui kegiatan kepemudaan dan TPQ.</li>
+					<li>Meningkatkan kepedulian sosial melalui santunan, bantuan, dan layanan masyarakat.</li>
+					<li>Menjalin ukhuwah Islamiyah dan kerjasama dengan berbagai pihak untuk kemajuan umat.</li>
+				</ul>
+			</section>
 		</main>
 
 		<footer class="bg-emerald-900 text-emerald-50">
