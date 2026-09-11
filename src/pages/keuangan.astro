@@ -9,10 +9,12 @@ const XLSX_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSYRGdIJonG8O6
 const SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSYRGdIJonG8O6PwF1ceNNwUMypxK7wju05pdQ39trRcwhv_bKzoKUMUJrfwB_svg/pubhtml';
 const CHART_EMBED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSYRGdIJonG8O6PwF1ceNNwUMypxK7wju05pdQ39trRcwhv_bKzoKUMUJrfwB_svg/pubhtml?gid=789856132&single=true&widget=true&headers=false';
 
-const angkaSel = (v: unknown) => (typeof v === 'number' ? v : 0);
+const angkaSel = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 
 async function ambilDataKas() {
-  const fallback = { pemasukan: 1749000, pengeluaran: 1407500, saldo: 24802500 };
+  // Fallback = data terakhir yang berhasil diambil dari spreadsheet
+  const DATA_TERAKHIR = { saldoLalu: 1116900, pemasukan: 2418000, pengeluaran: 951500, saldo: 2583400 };
+  const fallback = { ...DATA_TERAKHIR };
   try {
     const response = await fetch(XLSX_URL);
     const buffer = await response.arrayBuffer();
@@ -20,21 +22,23 @@ async function ambilDataKas() {
     const sheet = workbook.Sheets['Dashboard & Ringkasan'];
     if (!sheet) return fallback;
     return {
-      pemasukan: angkaSel(sheet['E6']?.v) || fallback.pemasukan,
-      pengeluaran: angkaSel(sheet['H6']?.v) || fallback.pengeluaran,
-      saldo: angkaSel(sheet['K6']?.v) || fallback.saldo,
+      saldoLalu: angkaSel(sheet['B7']?.v) ?? fallback.saldoLalu,
+      pemasukan: angkaSel(sheet['E7']?.v) ?? fallback.pemasukan,
+      pengeluaran: angkaSel(sheet['H7']?.v) ?? fallback.pengeluaran,
+      saldo: angkaSel(sheet['K7']?.v) ?? fallback.saldo,
     };
   } catch {
     return fallback;
   }
 }
 
-const { pemasukan, pengeluaran, saldo } = await ambilDataKas();
+const { saldoLalu, pemasukan, pengeluaran, saldo } = await ambilDataKas();
 
 const formatRupiah = (angka: number) =>
   new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
 
 const ringkasan = [
+  { id: 'saldo-lalu', label: 'Saldo Periode Sebelumnya', nilai: formatRupiah(saldoLalu), warna: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' },
   { id: 'pemasukan', label: 'Total Pemasukan', nilai: formatRupiah(pemasukan), warna: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
   { id: 'pengeluaran', label: 'Total Pengeluaran', nilai: formatRupiah(pengeluaran), warna: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-200' },
   { id: 'saldo', label: 'Saldo Kas Saat Ini', nilai: formatRupiah(saldo), warna: 'text-sky-600', bg: 'bg-sky-50', border: 'border-sky-200' },
@@ -59,7 +63,7 @@ const ringkasan = [
 				<p class="text-gray-500">Laporan kas dan realisasi anggaran tahun 2026.</p>
 			</section>
 
-			<section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+			<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
 				{
 					ringkasan.map((r) => (
 						<div class={`rounded-xl border ${r.border} ${r.bg} p-5`}>
@@ -69,6 +73,8 @@ const ringkasan = [
 					))
 				}
 			</section>
+
+			<p id="kas-update" class="text-xs text-gray-400 mb-8">Data diperbarui otomatis setiap 10 detik.</p>
 
 			<section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
 				<h2 class="text-2xl font-bold text-emerald-800 mb-2">📊 Grafik Keuangan</h2>
@@ -105,4 +111,38 @@ const ringkasan = [
 			</div>
 		</footer>
 	</body>
+
+	<script>
+		const ratusan = (n: number) => n.toString().padStart(2, '0');
+		const formatRupiah = (angka: number) =>
+			new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+
+		async function perbaruiKas() {
+			try {
+				const res = await fetch('/api/kas.json', { cache: 'no-store' });
+				if (!res.ok) return;
+				const data = await res.json();
+				const el = (id: string) => document.getElementById(`kas-${id}`);
+				for (const id of ['saldo-lalu', 'pemasukan', 'pengeluaran', 'saldo'] as const) {
+					const node = el(id);
+					if (node && typeof data[id] === 'number') node.textContent = formatRupiah(data[id]);
+				}
+				const label = document.getElementById('kas-update');
+				const jam = new Date(data.waktu ?? Date.now());
+				const asal = data.sumber === 'spreadsheet' ? 'spreadsheet' : 'cache terakhir (spreadsheet tak terjangkau)';
+				const umur = data.umurCacheDetik ?? 0;
+				const status = data.diambilSegar
+					? 'unduh baru dari Google'
+					: umur >= 120
+						? `cache ${Math.floor(umur / 60)} mnt`
+						: `cache ${umur} dtk`;
+				if (label) label.textContent = `Sumber: ${asal} (${status}) · Terakhir diperbarui: ${ratusan(jam.getHours())}:${ratusan(jam.getMinutes())}:${ratusan(jam.getSeconds())}`;
+			} catch {
+				// diamkan: biarkan nilai lama saat jaringan gagal
+			}
+		}
+
+		perbaruiKas();
+		setInterval(perbaruiKas, 10_000);
+	</script>
 </html>
